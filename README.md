@@ -21,10 +21,10 @@ Implementation of the Logic-LNCL on Sentiment Polarity (MTurk) Dataset and CoNLL
 
 
 ## 2 CoNLL-2003 NER (MTurk) dataset
-### 1.1 Prepare 
+### 2.1 Prepare 
 - Download pre-trained word embeddings with [glove.6B.300D.txt](https://nlp.stanford.edu/projects/glove/ ''), place it in `./NER/data/`
 
-### 1.2 Denpendencies: 
+### 2.2 Denpendencies: 
 `conda env create -f ner.yaml`
 ####  Or configure:
 - python 3.5.6
@@ -33,6 +33,6 @@ Implementation of the Logic-LNCL on Sentiment Polarity (MTurk) Dataset and CoNLL
 - numpy 1.15.2
 - scikit-learn 0.20.2 
 
-### 1.3 Training/Evaluation
+### 2.3 Training/Evaluation
 - `python main.py Logic-LNCL_1`
 - Write a `*.sh` script to run multiple times, e.g., `run.sh`
