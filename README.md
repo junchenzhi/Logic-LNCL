@@ -15,7 +15,7 @@ Implementation of the Logic-LNCL on Sentiment Polarity (MTurk) Dataset and CoNLL
 - scikit-learn 0.23.2 
 
 ### 1.3 Training/Evaluation
-- `python main.py --result_path Logic-LNCl_1`
+- `python main.py --result_path Logic-LNCL_1`
 - Write a `*.sh` script to run multiple times, e.g., `run.sh`
 
 
@@ -34,5 +34,5 @@ Implementation of the Logic-LNCL on Sentiment Polarity (MTurk) Dataset and CoNLL
 - scikit-learn 0.20.2 
 
 ### 1.3 Training/Evaluation
-- `python main.py Logic-LNCl_1`
+- `python main.py Logic-LNCL_1`
 - Write a `*.sh` script to run multiple times, e.g., `run.sh`
