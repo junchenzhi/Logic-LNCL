@@ -51,6 +51,9 @@ def read_MR():
             fea = ''
         train_but_fea.append(fea.split())
 
+    print("Number of sentences containing the word 'but' in the training data:", but_fea_cnt)
+
+    but_fea_cnt = 0
     df = pd.read_csv(test_file)
     for row in df.iterrows():
         line = (row[1]['Input.original_sentence'])
@@ -69,7 +72,7 @@ def read_MR():
             test_but_ind.append(0)
             fea = ''
         test_but_fea.append(fea.split())
-    print("but count ", but_fea_cnt)
+    print("Number of sentences containing the word 'but' in the original test data:", but_fea_cnt)
 
     x_train, y_train, train_but_fea, train_but_ind, answer = shuffle(x_train, y_train, train_but_fea, train_but_ind, answer)
     x_test, y_test, test_but_fea, test_but_ind = shuffle(x_test, y_test, test_but_fea, test_but_ind)
@@ -129,7 +132,9 @@ def read_MR_baseline():
             train_but_ind.append(0)
             fea = ''
         train_but_fea.append(fea.split())
+    print("Number of sentences containing the word 'but' in the training data:", but_fea_cnt)
 
+    but_fea_cnt = 0
     df = pd.read_csv(test_file)
     for row in df.iterrows():
         line = (row[1]['Input.original_sentence'])
@@ -149,6 +154,7 @@ def read_MR_baseline():
             fea = ''
         test_but_fea.append(fea.split())
     print("but count ", but_fea_cnt)
+    print("Number of sentences containing the word 'but' in the original test data:", but_fea_cnt)
 
     x_train, y_train, train_but_fea, train_but_ind, answer, glad = shuffle(x_train, y_train, train_but_fea, train_but_ind, answer, glad)
     x_test, y_test, test_but_fea, test_but_ind = shuffle(x_test, y_test, test_but_fea, test_but_ind)

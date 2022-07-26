@@ -328,7 +328,9 @@ flag = False
 results_dir = os.path.join("results", sys.argv[1])
 if not os.path.exists(results_dir):
     os.makedirs(results_dir)
-
+results_dir_r_test = "./r_test/"
+if not os.path.exists(results_dir_r_test):
+    os.makedirs(results_dir_r_test)
 
 print('\n')
 print('Begin training...')
