@@ -61,14 +61,14 @@ Implementation of the Logic-LNCL on Sentiment Polarity (MTurk) Dataset and CoNLL
 ## 3 More information about the datasets
 - The figure below shows more statistical information of the annotators.
 <div align=center>
-<img src="./fig/dataset.png" width="25%">
+<img src="./fig/dataset.png" width="30%">
 </div>
 
 
 
-- We show in the following example the main errors that can arise from crowd annotation on the NER dataset as presented in the paper.
+- The following example shows the main errors that can arise from crowd annotation on the NER dataset, as presented in the paper.
 
 
 <div align=center>
-<img src="./fig/ner.png" width="40%">
+<img src="./fig/ner.png" width="45%">
 </div>
