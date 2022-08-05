@@ -59,7 +59,7 @@ Implementation of the Logic-LNCL on Sentiment Polarity (MTurk) Dataset and CoNLL
 `python main.py --result_path Logic-LNCL_teacher_1 --fewer_sample 4900 --validation_teacher True` or `sh run_fewer_samples_teacher.sh`
 
 ## 3 More information about the datasets
-- The figure below shows more statistical information of the annotators.
+- The following figure shows more statistical information of the annotators.
 <div align=center>
 <img src="./fig/dataset.png" width="30%">
 </div>
