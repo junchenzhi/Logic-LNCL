@@ -31,6 +31,27 @@ python main.py --result_path Logic-LNCL_28
 python main.py --result_path Logic-LNCL_29
 python main.py --result_path Logic-LNCL_30
 
+python main.py --result_path Logic-LNCL_31
+python main.py --result_path Logic-LNCL_32
+python main.py --result_path Logic-LNCL_33
+python main.py --result_path Logic-LNCL_34
+python main.py --result_path Logic-LNCL_35
+python main.py --result_path Logic-LNCL_36
+python main.py --result_path Logic-LNCL_37
+python main.py --result_path Logic-LNCL_38
+python main.py --result_path Logic-LNCL_39
+python main.py --result_path Logic-LNCL_40
+
+python main.py --result_path Logic-LNCL_41
+python main.py --result_path Logic-LNCL_42
+python main.py --result_path Logic-LNCL_43
+python main.py --result_path Logic-LNCL_44
+python main.py --result_path Logic-LNCL_45
+python main.py --result_path Logic-LNCL_46
+python main.py --result_path Logic-LNCL_47
+python main.py --result_path Logic-LNCL_48
+python main.py --result_path Logic-LNCL_49
+python main.py --result_path Logic-LNCL_50
 
 
 

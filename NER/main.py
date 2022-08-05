@@ -1,5 +1,4 @@
 import os
-import sys
 import numpy as np
 import tensorflow as tf
 from sklearn.utils import shuffle
@@ -14,8 +13,21 @@ from keras.layers.embeddings import Embedding
 from sklearn.metrics import confusion_matrix, accuracy_score
 from conlleval import conlleval
 from crowd_aggregator import CrowdsSequenceAggregator
+import argparse
+import warnings
+warnings.filterwarnings('ignore')
 
-
+parser = argparse.ArgumentParser()
+parser.add_argument('--result_path')
+parser.add_argument('--fewer_sample', default=None, type=str, help="fewer training data")
+parser.add_argument("--validation_teacher", default=False,
+                    help="observe the teacher's performance on the validation data")
+options = parser.parse_args()
+params = {
+    "result_path": options.result_path,
+    "fewer_sample": options.fewer_sample,
+    "validation_teacher": options.validation_teacher
+}
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
@@ -183,6 +195,21 @@ N_CLASSES = len(label2ind)
 print("Num classes:", N_CLASSES)
 
 
+if params['fewer_sample'] != None:
+    print("\n")
+    print("=" * 20 + "Experiments on fewer samples" + "=" * 20)
+    print('Now we use fewer samples for training, i.e, ', params['fewer_sample'], 'samples')
+    print("=" * 20 + "Experiments on fewer samples" + "=" * 20)
+    final_my_need, X_train_enc, y_answers_enc, y_ground_truth_enc, y_answers, X_train, y_ground_truth = shuffle(final_my_need, X_train_enc, y_answers_enc, y_ground_truth_enc, y_answers, X_train, y_ground_truth)
+    final_my_need = final_my_need[: int(params['fewer_sample'])]
+    X_train_enc = X_train_enc[: int(params['fewer_sample'])]
+    y_answers_enc = y_answers_enc[: int(params['fewer_sample'])]
+    y_ground_truth_enc = y_ground_truth_enc[: int(params['fewer_sample'])]
+    y_answers = y_answers[: int(params['fewer_sample'])]
+    X_train = X_train[: int(params['fewer_sample'])]
+    y_ground_truth = y_ground_truth[: int(params['fewer_sample'])]
+
+
 # Here we shall use features representation produced by the VGG16 network as the input. Our base model is then simply composed by one densely-connected layer with 128 hidden units and an output dense layer. We use 50% dropout between the two dense layers.
 def build_base_model():
     base_model = Sequential()
@@ -215,7 +242,7 @@ def eval_tiaoshi(pr_test, y_truth):
     yh = y_truth.argmax(2)
     fyh, fpr = score(yh, pr_test)
     acc = accuracy_score(fyh, fpr)
-    print('accuracy:', acc)
+
     preds_test = []
     for i in range(len(pr_test)):
         coords = -len(y_ground_truth[i])
@@ -224,8 +251,8 @@ def eval_tiaoshi(pr_test, y_truth):
         preds_test.append(row)
     preds_test = [list(map(lambda x: ind2label[x], y)) for y in preds_test]
 
-    results_test = conlleval(preds_test, y_ground_truth, X_train, "./r_test/" + sys.argv[1] + ".txt")
-    print("Results :", results_test)
+    results_test = conlleval(preds_test, y_ground_truth, X_train, "./r_test/" + params["result_path"] + ".txt")
+    print("qft, accuracy:", acc, results_test)
 
     return results_test, acc
 
@@ -237,10 +264,6 @@ def eval_model(model, X_test_enc, y_test_enc, mode="test"):
     yh = y_test_enc.argmax(2)
     fyh, fpr = score(yh, pr_test)
     acc = accuracy_score(fyh, fpr)
-    if mode == "test":
-        print('Testing accuracy:', acc)
-    else:
-        print('Validing accuracy:', acc)
 
     preds_test = []
     for i in range(len(pr_test)):
@@ -255,9 +278,13 @@ def eval_model(model, X_test_enc, y_test_enc, mode="test"):
         x_, y_ = X_test[:dev_idx], y_test[:dev_idx]
     else:
         x_, y_ = X_test[dev_idx:], y_test[dev_idx:]
-    results_test = conlleval(preds_test, y_, x_, "./r_test/" + sys.argv[1] + ".txt")
+    results_test = conlleval(preds_test, y_, x_, "./r_test/" + params["result_path"] + ".txt")
 
-    print("Results:", results_test)
+
+    if mode == "test":
+        print("Logic-LNCL-student on test data, accuracy:", acc, results_test)
+    else:
+        print("Logic-LNCL-student on validation data, accuracy:", acc, results_test)
 
     return results_test, acc
 
@@ -275,11 +302,6 @@ def eval_model_logic(model, X_test_enc, y_test_enc, mode="test"):
     yh = y_test_enc.argmax(2)
     fyh, fpr = score(yh, pr_test)
     acc = accuracy_score(fyh, fpr)
-    if mode == "test":
-        print('Logic testing accuracy:', acc)
-    else:
-        print('Logic validing accuracy:', acc)
-
 
     preds_test = []
     for i in range(len(pr_test)):
@@ -290,8 +312,13 @@ def eval_model_logic(model, X_test_enc, y_test_enc, mode="test"):
         row[np.where(row == 0)] = 1
         preds_test.append(row)
     preds_test = [list(map(lambda x: ind2label[x], y)) for y in preds_test]
-    results_test = conlleval(preds_test, y_, x_, "./r_test/" + sys.argv[1] + ".txt")
-    print("Results for logic testset:", results_test)
+    results_test = conlleval(preds_test, y_, x_, "./r_test/" + params["result_path"] + ".txt")
+
+    if mode == "test":
+        print("Logic-LNCL-teacher on test data, accuracy:", acc, results_test)
+    else:
+        print("Logic-LNCL-teacher on validation data, accuracy:", acc, results_test)
+
     return results_test, acc
 
 
@@ -309,7 +336,7 @@ k_1, k_2 = 0.90, 0.20
 
 all_p, all_f1, all_r = [], [], []
 all_logic_p, all_logic_f1, all_logic_r = [], [], []
-all_val_f1 = []
+all_val_f1, all_val_f1_logic = [], []
 all_test_acc, all_logic_test_acc = [], []
 
 hard_f1, p_f1 = [], []
@@ -325,7 +352,7 @@ flag = False
 
 
 
-results_dir = os.path.join("results", sys.argv[1])
+results_dir = os.path.join("results", params["result_path"])
 if not os.path.exists(results_dir):
     os.makedirs(results_dir)
 results_dir_r_test = "./r_test/"
@@ -342,6 +369,7 @@ for epoch in range(30):
 
     if flag == False:
         results_val, val_acc = eval_model(model, X_val_enc, y_val_enc, mode="val")
+        results_val_logic, val_acc_logic = eval_model_logic(model, X_val_enc, y_val_enc, mode="val")
         results_test, test_acc = eval_model(model, X_test_enc, y_test_enc, mode="test")
         results_test_logic, test_logic_acc = eval_model_logic(model, X_test_enc, y_test_enc, mode="test")
 
@@ -356,9 +384,16 @@ for epoch in range(30):
         all_logic_r.append(results_test_logic["r"])
         all_logic_f1.append(results_test_logic["f1"])
 
+        all_val_f1_logic.append(results_val_logic["f1"])
 
-    if flag == False and val_f1 > best_val_f1:
-        best_val_f1 = val_f1
+
+    if params["validation_teacher"] == False:
+        val_performance = results_val["f1"]
+    else:
+        val_performance = results_val_logic["f1"]
+
+    if flag == False and val_performance > best_val_f1:
+        best_val_f1 = val_performance
 
         student_f1 = results_test["f1"]
         student_precision = results_test["p"]
@@ -383,7 +418,8 @@ for epoch in range(30):
     # ground_truth_est is qbt
     ground_truth_est = crowds_agg.ground_truth_est
     ground_truth_est_logic, hard = crowds_agg.decode(ground_truth_est_3, y_answers)
-    pai = crowds_agg.get_pai(epoch+1, params=[k_1, k_2])
+    # pai = crowds_agg.get_pai(epoch+1, params=[k_1, k_2])
+    pai = crowds_agg.get_pai(epoch + 1, [k_1, k_2])
     crowds_agg.get_final_groud_truth(pai)
     result_qft, _ = eval_tiaoshi(crowds_agg.ground_truth_est, y_ground_truth_enc)
     qft.append(result_qft['f1'])
@@ -411,6 +447,7 @@ print('Inference, F1:', qft_f1, 'precision:', qft_precision,
 
 # validation set
 np.save(os.path.join(results_dir, 'all_val_f1.npy'), all_val_f1)
+np.save(os.path.join(results_dir, 'all_val_f1_logic.npy'), all_val_f1_logic)
 
 # training set
 np.save(os.path.join(results_dir, 'qft.npy'), qft)

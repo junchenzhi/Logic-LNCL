@@ -2,12 +2,10 @@ from model import CNN
 import utils_our
 from logicnn_class import LogicNN
 from fol import FOL_But
-
 import torch
 import torch.optim as optim
 import torch.nn as nn
 import torch.nn.functional as F
-
 from sklearn.utils import shuffle
 from gensim.models.keyedvectors import KeyedVectors
 import numpy as np
@@ -15,7 +13,8 @@ import argparse
 import copy
 import math
 import os
-
+import warnings
+warnings.filterwarnings('ignore')
 
 def train(data, params):
     if params["MODEL"] != "rand":
@@ -39,26 +38,28 @@ def train(data, params):
 
     model = CNN(**params).cuda(params["GPU"])
     logic_nn = LogicNN(network=model, C=params['C'])
-
     parameters = filter(lambda p: p.requires_grad, model.parameters())
     optimizer = optim.Adadelta(parameters, params["LEARNING_RATE"])
     criterion_2 = nn.KLDivLoss()
 
-    all_train_acc = []
-    all_test_acc = []
-    all_dev_acc = []
+    all_train_acc, all_test_acc, all_dev_acc = [], [], []
     all_p_acc, all_snt_acc = [], []
-    all_train_logic_acc = []
-    all_test_logic_acc = []
-    all_dev_logic_acc = []
+    all_train_logic_acc, all_test_logic_acc, all_dev_logic_acc = [], [], []
     qft = []
-
-    count = 0
-    max_dev_acc = 0
-
+    count, max_dev_acc = 0, 0
 
     # initialize weighted_pred
     weighted_pred = begin_inference(data["answers"])
+    if params['fewer_sample'] != None:
+        print("=" * 20 + "Experiments on fewer samples" + "=" * 20)
+        print('Now we use fewer samples for training, i.e, ', params['fewer_sample'], 'samples')
+        data["train_x"], data["train_y"], data["train_but_fea"], data["train_but_ind"], data["answers"], weighted_pred = \
+            shuffle(data["train_x"], data["train_y"], data["train_but_fea"], data["train_but_ind"], data["answers"],
+                    weighted_pred)
+        data["train_x"], data["train_y"] = data["train_x"][:int(params['fewer_sample'])], data["train_y"][:int(params['fewer_sample'])]
+        data["train_but_fea"], data["train_but_ind"] = data["train_but_fea"][:int(params['fewer_sample'])], data["train_but_ind"][:int(params['fewer_sample'])]
+        data["answers"] = data["answers"][:int(params['fewer_sample'])]
+        weighted_pred = weighted_pred[:int(params['fewer_sample'])]
 
     flag = False
     for e in range(params["EPOCH"]):
@@ -106,8 +107,7 @@ def train(data, params):
             params["GPU"])  
 
         f_but_ind = f_but_ind.reshape((len(data["train_but_ind"]), 1))
-        f_but_full = torch.cat((f_but_ind, y_posterior_but), 1)  
-
+        f_but_full = torch.cat((f_but_ind, y_posterior_but), 1)
         rules = [FOL_But(nclasses, train_x, f_but_full)]
         logic_nn.input, logic_nn.rules = train_x, rules 
         snt_logic = logic_nn.cal_logic(y_posterior.clone())  
@@ -138,8 +138,13 @@ def train(data, params):
             all_dev_logic_acc.append(dev_acc_2)
             all_test_logic_acc.append(test_acc_2)
 
-        if flag == False and dev_acc_1 > max_dev_acc:
-            max_dev_acc = dev_acc_1
+
+        if params["validation_teacher"] == False:
+            dev_performance = dev_acc_1
+        else:
+            dev_performance = dev_acc_2
+        if flag == False and dev_performance > max_dev_acc:
+            max_dev_acc = dev_performance
             max_test_acc_student = test_acc_1
             max_test_acc_teacher = test_acc_2
             count = 0
@@ -161,6 +166,7 @@ def train(data, params):
             When the prediction model is shown to have reached the early-stopping time on the validation set, 
             we need to continue to explore the inference performance. 
             '''
+
 
 
 
@@ -366,6 +372,8 @@ def main():
     parser.add_argument("--patience", default=5, type=int, help="early stopping patience")
     parser.add_argument("--gpu", default=0, type=int, help="the number of gpu to be used")
     parser.add_argument('--result_path')
+    parser.add_argument('--fewer_sample', default=None, type=str, help="fewer training data")
+    parser.add_argument("--validation_teacher", default=False, help="observe the teacher's performance on the validation data")
 
     options = parser.parse_args()
 
@@ -396,7 +404,9 @@ def main():
         "C": options.C,
         "PATIENCE": options.patience,
         "GPU": options.gpu,
-        "result_path": "./results/" + options.result_path
+        "result_path": "./results/" + options.result_path,
+        "fewer_sample": options.fewer_sample,
+        "validation_teacher": options.validation_teacher
     }
 
     print("=" * 20 + "INFORMATION" + "=" * 20)
