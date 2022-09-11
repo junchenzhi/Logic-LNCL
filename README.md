@@ -2,7 +2,7 @@
 
 
 <div align=center>
-<img src="./fig/framework-1.png" width="55%">
+<img src="./fig/framework-1.png" width="60%">
 
 Figure 1: Logic-LNCL
 </div>
