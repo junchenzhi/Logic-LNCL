@@ -1,11 +1,19 @@
-# Logic-LNCL
-Implementation of the Logic-LNCL on Sentiment Polarity (MTurk) Dataset and CoNLL-2003 NER (MTurk) dataset.
+# Learning from Noisy Crowd Labels with Logics
 
 
+<div align=center>
+<img src="./fig/framework-1.png" width="45%">
 
+Figure 1: Logic-LNCL
+</div>
 
+## Introduction
+This paper explores the integration of symbolic logic knowledge into deep neural networks for learning from noisy crowd labels. 
+We introduce *Logic-guided Learning from Noisy Crowd Labels* (Logic-LNCL), an EM-alike iterative logic knowledge distillation framework that learns from both noisy labeled data and logic rules of interest. 
+Unlike traditional EM methods, our framework contains a “pseudo-E-step” that distills from the logic rules a new type of learning target, which is then used in the “pseudo-M-step” for training the classifier. 
+Extensive evaluations on two real-world datasets for text sentiment classification and named entity recognition demonstrate that the proposed framework improves the state-of-the-art and provides a new solution to learning from noisy crowd labels.
 
-
+This paper is accepted by ICDE2023.
 
 ## 1 Sentiment Polarity (MTurk) Dataset
 ### 1.1 Prepare 
@@ -33,7 +41,7 @@ Implementation of the Logic-LNCL on Sentiment Polarity (MTurk) Dataset and CoNLL
 `python main.py --result_path Logic-LNCL_teacher_1 --fewer_sample 3300 --validation_teacher True` or `sh run_fewer_samples_teacher.sh`
 
 
-## 2 CoNLL-2003 NER (MTurk) dataset
+## 2 CoNLL-2003 NER (MTurk) Dataset
 ### 2.1 Prepare 
 - Download pre-trained word embeddings with [glove.6B.300D.txt](https://nlp.stanford.edu/projects/glove/ ''), place it in `./NER/data/`
 
@@ -62,6 +70,12 @@ Implementation of the Logic-LNCL on Sentiment Polarity (MTurk) Dataset and CoNLL
 - The following figure shows more statistical information of the annotators.
 <div align=center>
 <img src="./fig/dataset.png" width="30%">
+
+Figure 2: Boxplots for the number of
+annotated instances (a)
+and the accuracies/F1 (b) of the AMT annotators for the 
+sentiment dataset and the
+NER dataset.
 </div>
 
 
@@ -71,4 +85,7 @@ Implementation of the Logic-LNCL on Sentiment Polarity (MTurk) Dataset and CoNLL
 
 <div align=center>
 <img src="./fig/ner.png" width="45%">
+
+Figure 3:
+An example of noisy crowd sequence labels. "O" denotes "Others".
 </div>
