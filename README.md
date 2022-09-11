@@ -58,7 +58,7 @@ This paper is accepted by ICDE2023.
 - `python main.py Logic-LNCL_1`
 - Write a `*.sh` script to run multiple times, e.g., `run.sh`; and `sh run.sh`
 
-### 1.4 Experiments on fewer samples
+### 2.4 Experiments on fewer samples
 - Test Logic-LNCL-student:
 
 `python main.py --result_path Logic-LNCL_student_1 --fewer_sample 5700` or `sh run_fewer_samples_student.sh`
