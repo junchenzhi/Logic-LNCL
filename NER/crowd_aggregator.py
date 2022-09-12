@@ -32,7 +32,8 @@ class CrowdsSequenceAggregator():
         self.ground_truth_est = np.zeros((self.n_train, self.seq_length, self.num_classes))
         for i in range(self.n_train):
             for j in range(self.seq_length):
-                votes = np.zeros(self.num_annotators)
+                # votes = np.zeros(self.num_annotators)
+                votes = np.zeros(self.num_classes)
                 for r in range(self.num_annotators):
                     if answers[i, j, r] != -1:
                         votes[answers[i, j, r]] += 1
@@ -43,6 +44,10 @@ class CrowdsSequenceAggregator():
 
 
         self.transitions = np.zeros((9, 10))
+        '''
+        In addition to the transition rules listed in Equations 16 and 17 in the paper, 
+        we used similar transition rules whose non-zero weights (i.e., the non-zero elements in "self.transitions") are shown below.
+        '''
         self.transitions[0] = np.array([0.873, 0.014, 0.018, 0.009, 0.0226, 0.018, 0.032, 0.009, 0.005, 0.000])
         self.transitions[:, -1] = np.array([0.55, 0.1, 0.0, 0.0, 0.3, 0.0, 0.05, 0.0, 0.0])
         self.transitions[1][0] = 1.0
@@ -65,7 +70,8 @@ class CrowdsSequenceAggregator():
     def e_step(self):
         print("Pseudo-E-step...")
         self.ground_truth_est_3 = self.model.predict(self.data_train)
-        self.ground_truth_est = self.model.predict(self.data_train)
+        # self.ground_truth_est = self.model.predict(self.data_train)
+        self.ground_truth_est = self.ground_truth_est_3
 
         adjustment_factor = np.ones((self.n_train, self.seq_length, self.num_classes))
         for i in range(self.n_train):
@@ -134,7 +140,7 @@ class CrowdsSequenceAggregator():
 
 
             best_tag_id = np.argmax(forward_var)
-            path_score = forward_var[0][best_tag_id]
+
 
             # Follow the back pointers to decode the best path.
             best_path = [best_tag_id]
@@ -169,12 +175,3 @@ class CrowdsSequenceAggregator():
         k, lb = params[0], params[1]
         pi = 1. - max([k ** cur_iter, lb])
         return pi
-
-
-
-
-
-
-
-
-

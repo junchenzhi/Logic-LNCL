@@ -122,9 +122,9 @@ def encode(x, n):
 
 
 X_train_enc = [[word2ind[c] for c in x] for x in X_train]
-y_ground_truth_enc = [([0] * (maxlen - 1 - len(ey))) + [label2ind[c] for c in ey] for ey in y_ground_truth]
+y_ground_truth_enc = [([0] * (maxlen - len(ey))) + [label2ind[c] for c in ey] for ey in y_ground_truth]
 y_ground_truth_enc = [[encode(c, max_label) for c in ey] for ey in y_ground_truth_enc]
-y_mv_enc = [[0] * (maxlen - 1 - len(ey)) + [label2ind[c] for c in ey] for ey in y_mv]
+y_mv_enc = [[0] * (maxlen - len(ey)) + [label2ind[c] for c in ey] for ey in y_mv]
 y_mv_enc = [[encode(c, max_label) for c in ey] for ey in y_mv_enc]
 
 y_answers_enc = []

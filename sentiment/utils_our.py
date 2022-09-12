@@ -197,7 +197,8 @@ def read_MR_mv(data):
     # initialize estimated ground truth with majority voting
     y_mv = [0] * n_train
     for i in range(n_train):
-        votes = np.zeros(2)
+        # votes = np.zeros(2)
+        votes = np.random.uniform(0.1, 0.2, 2)
         for r in range(num_annotators):
             if answers[i, r] != -1:
                 votes[answers[i, r]] += 1
