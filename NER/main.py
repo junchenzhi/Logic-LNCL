@@ -327,10 +327,8 @@ model = build_base_model()
 crowds_agg = CrowdsSequenceAggregator(model, final_my_need, X_train_enc, y_answers_enc, num_classes=N_CLASSES, label2ind=label2ind,
                                       batch_size=BATCH_SIZE, C=5.0)
 
-'''
-Here k_1 and k_2, the two hyper-parameters, correspond to ``imitation strength $k^{(t)}$'' in our paper.
-Set k_2 to 0.20, not 0.10 as stated in our paper (we wrote this value wrong in our paper).
-'''
+
+
 # k(t) = min(0.80, 1-0.90**t)
 k_1, k_2 = 0.90, 0.20
 
@@ -394,15 +392,12 @@ for epoch in range(30):
 
     if flag == False and val_performance > best_val_f1:
         best_val_f1 = val_performance
-
         student_f1 = results_test["f1"]
         student_precision = results_test["p"]
         student_recall = results_test["r"]
-
         teacher_f1 = results_test_logic["f1"]
         teacher_precision = results_test_logic["p"]
         teacher_recall = results_test_logic["r"]
-
         stop_count = 0
     else:
         stop_count += 1
@@ -410,7 +405,6 @@ for epoch in range(30):
         np.save(os.path.join(results_dir, 'pi_earlystop.npy'), pi)
         flag = True
         # break
-
 
     # Pseudo-E-step
     crowds_agg.e_step()
@@ -426,11 +420,13 @@ for epoch in range(30):
     qft_precision.append(result_qft['p'])
     qft_recall.append(result_qft['r'])
 
+
 qft = np.array(qft)
 stop_time_inference = qft.argmax()
 qft_f1 = max(qft)
 qft_precision = qft_precision[stop_time_inference]
 qft_recall = qft_recall[stop_time_inference]
+
 
 
 
@@ -442,8 +438,6 @@ print('Logic-LNCL-teacher: F1:', teacher_f1, 'precision:', teacher_precision, 'r
 print('Inference:')
 print('Inference, F1:', qft_f1, 'precision:', qft_precision,
       'recall:', qft_recall)
-
-
 
 # validation set
 np.save(os.path.join(results_dir, 'all_val_f1.npy'), all_val_f1)

@@ -15,6 +15,7 @@ def read_MR():
     x_test, y_test, test_but_fea, test_but_ind = [], [], [], []
     but_fea_cnt = 0
     train_file = "./data/mturk_answers.csv"
+    # "test_answer.csv" was created by "make_data.py"
     test_file = "./data/test_answer.csv"
 
     df = pd.read_csv(train_file)

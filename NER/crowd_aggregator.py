@@ -72,7 +72,6 @@ class CrowdsSequenceAggregator():
         self.ground_truth_est_3 = self.model.predict(self.data_train)
         # self.ground_truth_est = self.model.predict(self.data_train)
         self.ground_truth_est = self.ground_truth_est_3
-
         adjustment_factor = np.ones((self.n_train, self.seq_length, self.num_classes))
         for i in range(self.n_train):
             for j in range(self.seq_length):
@@ -82,6 +81,7 @@ class CrowdsSequenceAggregator():
         self.ground_truth_est = adjustment_factor * self.ground_truth_est
         self.ground_truth_est = self.ground_truth_est / np.sum(self.ground_truth_est, 2).reshape(
             (self.n_train, self.seq_length, 1))
+
 
     def e_step_model_predict(self):
         print("E-step...")
@@ -105,7 +105,6 @@ class CrowdsSequenceAggregator():
                         self.pi[r, :, self.answers[i, j, r]] += self.ground_truth_est[i, j, :]
             normalizer[normalizer == 0] = 0.00001
             self.pi[r] = self.pi[r] / normalizer.reshape(self.num_classes, 1)
-
         return self.model, self.pi
 
 
@@ -127,20 +126,14 @@ class CrowdsSequenceAggregator():
                     continue
                 bptrs_t = []  # holds the backpointers for this step
                 viterbivars_t = []  # holds the viterbi variables for this step
-
                 for next_tag in range(tagset_size - 1):
-
                     next_tag_var = forward_var + self.K * self.transitions[next_tag]
                     best_tag_id = np.argmax(next_tag_var)
                     bptrs_t.append(best_tag_id)
                     viterbivars_t.append(next_tag_var[0][best_tag_id])
-
                 forward_var = (np.array(viterbivars_t) + feat[1:]).reshape(1, -1)
                 backpointers.append(bptrs_t)
-
-
             best_tag_id = np.argmax(forward_var)
-
 
             # Follow the back pointers to decode the best path.
             best_path = [best_tag_id]
@@ -158,7 +151,6 @@ class CrowdsSequenceAggregator():
         distr = np.exp(self.C * hard_distribution)
         nonlogsoft *= distr
         snt = nonlogsoft / np.sum(nonlogsoft, 2).reshape((sent_num, -1, 1))
-
         if flag:
             self.ground_truth_est_2 = snt
 

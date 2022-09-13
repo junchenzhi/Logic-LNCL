@@ -1,7 +1,5 @@
 """
-
 First Order Logic (FOL) rules
-
 """
 
 import warnings

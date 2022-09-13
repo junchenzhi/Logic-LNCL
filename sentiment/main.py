@@ -16,6 +16,9 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
+
+
+
 def train(data, params):
     if params["MODEL"] != "rand":
         # load word2vec
@@ -48,6 +51,7 @@ def train(data, params):
     qft = []
     count, max_dev_acc = 0, 0
 
+
     # initialize weighted_pred
     weighted_pred = begin_inference(data["answers"])
     if params['fewer_sample'] != None:
@@ -60,6 +64,7 @@ def train(data, params):
         data["train_but_fea"], data["train_but_ind"] = data["train_but_fea"][:int(params['fewer_sample'])], data["train_but_ind"][:int(params['fewer_sample'])]
         data["answers"] = data["answers"][:int(params['fewer_sample'])]
         weighted_pred = weighted_pred[:int(params['fewer_sample'])]
+
 
     flag = False
     for e in range(params["EPOCH"]):
@@ -152,8 +157,6 @@ def train(data, params):
         else:
             count += 1
 
-
-
         print("--------------------------------------------------")
 
         if params["EARLY_STOPPING"] and count == params["PATIENCE"]:
@@ -167,9 +170,6 @@ def train(data, params):
             we need to continue to explore the inference performance. 
             '''
 
-
-
-
         if params["LEARNING_DECAY"]:
             lr = params['LEARNING_RATE'] * (0.5 ** (e // 5))
             for param_group in optimizer.param_groups:
@@ -177,9 +177,6 @@ def train(data, params):
 
     # Results of the early-stopping time:
     print("max dev acc:", max_dev_acc, "test acc_student:", max_test_acc_student, "test acc_teacher:", max_test_acc_teacher)
-
-
-
     np.save(os.path.join(params["result_path"], 'all_p_acc.npy'), all_p_acc)
     np.save(os.path.join(params["result_path"], 'all_snt_acc.npy'), all_snt_acc)
     np.save(os.path.join(params["result_path"], 'qft.npy'), qft)
@@ -193,6 +190,8 @@ def train(data, params):
     np.save(os.path.join(params["result_path"], 'all_test_logic_acc.npy'), all_test_logic_acc)
 
     return best_model
+
+
 
 
 def test_logic(data, model, logicnn, params, pi, mode="test"):
@@ -214,8 +213,6 @@ def test_logic(data, model, logicnn, params, pi, mode="test"):
     x = (torch.LongTensor(x)).cuda(params["GPU"])
     y = [data["classes"].index(c) for c in y]
 
-
-
     x_but_fea = [[data["word_to_idx"][w] for w in sent] + [params["VOCAB_SIZE"] + 1] * (params["MAX_SENT_LEN"] -
                                                                                         len(sent)) for sent in
                  x_but_fea]
@@ -224,17 +221,12 @@ def test_logic(data, model, logicnn, params, pi, mode="test"):
 
     nclasses = params["CLASS_SIZE"]
     y_posterior = F.softmax(model(x), dim=-1)  # y infer
-    y_posterior_but = F.softmax(model(x_but_fea), dim=-1)  
-
+    y_posterior_but = F.softmax(model(x_but_fea), dim=-1)
     x_but_ind = x_but_ind.reshape((len(x_but_ind), 1))
-    x_but_full = torch.cat((x_but_ind, y_posterior_but), 1)  
-
-
+    x_but_full = torch.cat((x_but_ind, y_posterior_but), 1)
     rules = [FOL_But(nclasses, x, x_but_full)]
     logicnn.input, logicnn.rules = x, rules
-
-    snt_logic = logicnn.cal_logic(y_posterior)  
-
+    snt_logic = logicnn.cal_logic(y_posterior)
     pred = np.argmax(snt_logic.cpu().data.numpy(), axis=1)
     acc = sum([1 if p == y else 0 for p, y in zip(pred, y)]) / len(pred)
 
@@ -271,8 +263,6 @@ def test(data, model, params, mode="test"):
     acc = sum([1 if p == y else 0 for p, y in zip(pred, y)]) / len(pred)
 
     return acc
-
-
 
 
 
@@ -316,7 +306,6 @@ def m_step_updates_worker_ability(truth, answers):
             worker_ability[j][0][1] = 1 - worker_ability[j][0][0]
             worker_ability[j][1][0] = worker_ability_before[j][1][0] / pos if pos != 0 else 0.000001
             worker_ability[j][1][1] = 1 - worker_ability[j][1][0]
-
     return worker_ability
 
 
